@@ -1,13 +1,13 @@
 
 import express from "express";
+import cookieParser from "cookie-parser";
+import authRouteHandler from "./route/auth.route";
 const app = express();
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-// route handlers
-import authRouteHandler from "./route/auth.route";
-
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRouteHandler);
