@@ -83,7 +83,12 @@ export const signin = async (req: Request, res: Response) => {
 };
 
 export const signout = async (req: Request, res: Response) => {
-  // Implement logout logic here
+  // remove refresh token cookie
+  res
+    .status(204)
+    .clearCookie("refreshToken")
+    .send();
+  return;
 };
 
 export const refreshAccessToken = async (req: Request, res: Response) => {
