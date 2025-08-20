@@ -1,10 +1,11 @@
 import express from "express";
 import { signup, signin, signout, refreshAccessToken, forgotPassword, changePassword } from "../controller/auth.controller";
+import { validateSignupForm,validateSigninForm } from "../middleware/auth.middleware";
 const router = express.Router();
 
-router.post("/signup", signup);
+router.post("/signup", validateSignupForm, signup);
 
-router.post("/signin", signin);
+router.post("/signin", validateSigninForm, signin);
 
 router.post("/signout", signout);
 
