@@ -31,7 +31,7 @@ model User {
 
 model BlogPost {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  title      String
+  title      String       @db.String
   content    String
   categoryId String       @db.ObjectId
   authorId   String       @db.ObjectId
@@ -40,6 +40,8 @@ model BlogPost {
   author     User         @relation(fields: [authorId], references: [id])
   comments   Comment[]
   category   BlogCategory @relation(fields: [categoryId], references: [id])
+
+  @@map("blog_posts")
 }
 
 model BlogCategory {

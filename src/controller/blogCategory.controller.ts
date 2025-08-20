@@ -4,8 +4,23 @@ import { PrismaClient } from "../generated/prisma";
 const prisma = new PrismaClient();
 
 const createBlogCategory = async (req: Request, res: Response) => {
+  const { name } = req.body;
+  // check if the blog category already exists
   try {
-    const { name } = req.body;
+    const blogCategory = await prisma.blogCategory.findFirst({
+      where: { name: { equals: name, mode: "insensitive" } },
+    });
+    if (blogCategory) {
+      res.status(400).json({ message: "Blog category already exists" });
+      return;
+    }
+  } catch (error: any) {
+    console.error("Error checking if blog category already exists:\n", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+  // create the blog category
+  try {
     const blogCategory = await prisma.blogCategory.create({ data: { name } });
     res.status(200).json({ createdBlogCategory: blogCategory });
   } catch (error: any) {
