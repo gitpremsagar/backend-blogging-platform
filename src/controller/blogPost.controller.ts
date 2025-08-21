@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { Prisma, PrismaClient } from "../generated/prisma";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { JwtPayload } from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
@@ -95,9 +97,17 @@ const getBlogPostsBySearch = async (req: Request, res: Response) => {
   }
 };
 
-const updateBlogPost = async (req: Request, res: Response) => {
+const updateBlogPost = async (req: AuthenticatedRequest, res: Response) => {
   const { blogPostId } = req.params;  
   const { title, content, categoryId, authorId } = req.body;
+  const userId = (req.user as JwtPayload).id;
+
+  // check if the user is the author of the blog post
+  if (userId !== authorId) {
+    res.status(403).json({ message: "You are not authorized to update this blog post" });
+    return;
+  }
+
   try {
     const blogPost = await prisma.blogPost.update({
       where: { id: blogPostId },
@@ -112,11 +122,13 @@ const updateBlogPost = async (req: Request, res: Response) => {
   }
 };
 
-const deleteBlogPost = async (req: Request, res: Response) => {
+const deleteBlogPost = async (req: AuthenticatedRequest, res: Response) => {
   const { blogPostId } = req.params;
-  try {
-    await prisma.blogPost.delete({ where: { id: blogPostId } });
-    res.status(200).json({ message: "Blog post deleted successfully" });
+  const userId = (req.user as JwtPayload).id;
+
+ try {
+    const deletedBlogPost = await prisma.blogPost.delete({ where: { id: blogPostId, authorId: userId } });
+    res.status(200).json({ deletedBlogPost });
   } catch (error: any) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {

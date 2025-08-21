@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "../generated/prisma";
+import { JwtPayload } from "jsonwebtoken";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 const prisma = new PrismaClient();
 
@@ -57,7 +59,15 @@ const getBlogCategoryById = async (req: Request, res: Response) => {
   }
 };
 
-const updateBlogCategory = async (req: Request, res: Response) => {
+const updateBlogCategory = async (req: AuthenticatedRequest, res: Response) => {
+  const userType = (req.user as JwtPayload).type;
+  // check if the user is admin
+  if (userType !== "ADMIN") {
+    res.status(403).json({ message: "You are not authorized to update this blog category" });
+    return;
+  }
+
+  // update the blog category
   try {
     const { blogCategoryId } = req.params;
     const { name } = req.body;
@@ -72,7 +82,15 @@ const updateBlogCategory = async (req: Request, res: Response) => {
   }
 };
 
-const deleteBlogCategory = async (req: Request, res: Response) => {
+const deleteBlogCategory = async (req: AuthenticatedRequest, res: Response) => {
+  const userType = (req.user as JwtPayload).type;
+  // check if the user is admin
+  if (userType !== "ADMIN") {
+    res.status(403).json({ message: "You are not authorized to delete this blog category" });
+    return;
+  }
+
+  // delete the blog category
   try {
     const { blogCategoryId } = req.params;
     const blogCategory = await prisma.blogCategory.delete({
