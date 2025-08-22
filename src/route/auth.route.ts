@@ -3,11 +3,11 @@ import { signup, signin, signout, refreshAccessToken, decodeAccessToken, forgotP
 import { validateSignupForm,validateSigninForm,validateAccessToken } from "../middleware/auth.middleware";
 const router = express.Router();
 
-router.post("/signup", validateSignupForm, signup);
+router.post("/sign-up", validateSignupForm, signup);
 
-router.post("/signin", validateSigninForm, signin);
+router.post("/sign-in", validateSigninForm, signin);
 
-router.post("/signout", signout);
+router.post("/sign-out", signout);
 
 router.post("/decode-access-token", validateAccessToken, decodeAccessToken);
 

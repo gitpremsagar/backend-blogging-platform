@@ -15,7 +15,7 @@ export const signup = async (req: Request, res: Response) => {
   //check if user already exists
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
-    return res.status(400).json({ message: "User already exists" });
+    return res.status(409).json({ message: "User already exists" });
   }
 
   // Hash the password
@@ -50,7 +50,7 @@ export const signin = async (req: Request, res: Response) => {
   // Implement login logic here
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
-    return res.status(401).json({ message: "Invalid email or password" });
+    return res.status(404).json({ message: "Invalid email or password" });
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
