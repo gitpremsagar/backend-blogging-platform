@@ -30,16 +30,27 @@ model User {
 }
 
 model BlogPost {
-  id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  title      String       @db.String
-  content    String
-  categoryId String       @db.ObjectId
-  authorId   String       @db.ObjectId
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  author     User         @relation(fields: [authorId], references: [id])
-  comments   Comment[]
-  category   BlogCategory @relation(fields: [categoryId], references: [id])
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  title       String       @db.String
+  excerpt     String       @db.String
+  readTimeMin Int          @db.Int
+  imageUrl    String       @db.String
+  imageAlt    String       @db.String
+  likes       Int          @default(0)
+  dislikes    Int          @default(0)
+  tags        String[]     @db.String
+  isPublished Boolean      @default(false)
+  isArchived  Boolean      @default(false)
+  isDeleted   Boolean      @default(false)
+  isFeatured  Boolean      @default(false)
+  content     String
+  categoryId  String       @db.ObjectId
+  authorId    String       @db.ObjectId
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  author      User         @relation(fields: [authorId], references: [id])
+  comments    Comment[]
+  category    BlogCategory @relation(fields: [categoryId], references: [id])
 
   @@map("blog_posts")
 }
