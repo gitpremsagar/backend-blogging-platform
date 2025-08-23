@@ -58,9 +58,16 @@ export const signin = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
+  const userData = {
+    Id: user.id,
+    email: user.email,
+    name: user.name,
+    type: user.type,
+  };
+
   // Generate JWT tokens
   const accessToken = jwt.sign(
-    { Id: user.id, email: user.email, name: user.name, type: user.type },
+    { ...userData },
     process.env.ACCESS_TOKEN_JWT_SECRET!,
     { expiresIn: +process.env.ACCESS_TOKEN_JWT_EXPIRY! }
   );
@@ -71,14 +78,16 @@ export const signin = async (req: Request, res: Response) => {
   );
 
   // send refresh token to client
-  res.cookie("refreshToken", refreshToken, {
+  res
+  .cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true,
-    maxAge: +process.env.REFRESH_TOKEN_COOKIE_EXPIRY!,
-  });
-
-  // Send tokens in response
-  res.send({ accessToken });
+    secure: process.env.NODE_ENV === "production",
+    // maxAge: +process.env.REFRESH_TOKEN_COOKIE_EXPIRY!,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    sameSite: "lax",
+    path: "/",
+  })
+  .json({ accessToken, user:userData });
   return;
 };
 
@@ -86,14 +95,22 @@ export const signout = async (req: Request, res: Response) => {
   // remove refresh token cookie
   res
     .status(204)
-    .clearCookie("refreshToken")
+    .cookie("refreshToken", "", {
+      httpOnly: true,
+      secure: false,
+      maxAge: 0,
+      sameSite: "none",
+      path: "/",
+    })
     .send();
   return;
 };
 
 export const refreshAccessToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
+  console.log("Cookie is\n", req.cookies);
   if (!refreshToken) {
+    console.log("Refresh token is missing");
     return res.status(401).json({ message: "Refresh token is missing" });
   }
 
@@ -123,6 +140,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
       error.name === "TokenExpiredError" ||
       error.name === "JsonWebTokenError"
     ) {
+      console.log("Error while refreshing access token\n", error);
       return res
         .status(401)
         .json({ message: "Invalid or expired refresh token" });
