@@ -59,7 +59,7 @@ export const signin = async (req: Request, res: Response) => {
   }
 
   const userData = {
-    Id: user.id,
+    id: user.id,
     email: user.email,
     name: user.name,
     type: user.type,
@@ -87,6 +87,10 @@ export const signin = async (req: Request, res: Response) => {
     sameSite: "lax",
     path: "/",
   })
+  .cookie("accessToken", accessToken, {
+    maxAge: +process.env.ACCESS_TOKEN_COOKIE_EXPIRY!,
+    path: "/",
+  })
   .json({ accessToken, user:userData });
   return;
 };
@@ -102,6 +106,10 @@ export const signout = async (req: Request, res: Response) => {
       sameSite: "lax", // Match signin setting
       path: "/",
     })
+    .cookie("accessToken", "", {
+      maxAge: 0,
+      path: "/",
+    })
     .send();
   return;
 };
@@ -110,7 +118,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
   // console.log("Cookie is\n", req.cookies);
   if (!refreshToken) {
-    console.log("Refresh token is missing");
+    console.log("Refreshing access token failed: Refresh token is missing");
     return res.status(401).json({ message: "Refresh token is missing" });
   }
 
@@ -128,7 +136,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     }
 
     const userData = {
-      Id: user.id,
+      id: user.id,
       email: user.email,
       name: user.name,
       type: user.type,
@@ -141,7 +149,11 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
       { expiresIn: +process.env.ACCESS_TOKEN_JWT_EXPIRY! } // Remove '+' if using "1h" etc.
     );
 
-    res.send({ accessToken, user: userData });
+    res.cookie("accessToken", accessToken, {
+      maxAge: +process.env.ACCESS_TOKEN_COOKIE_EXPIRY!,
+      path: "/",
+    })
+    .send({ accessToken, user: userData });
   } catch (error: any) {
     if (
       error.name === "TokenExpiredError" ||

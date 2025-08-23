@@ -39,7 +39,7 @@ const validateBlogPostFormData = (
     next();
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({ message: error });
     } else {
       console.error("Error validating blog post form data:\n", error);
       res.status(500).json({ message: "Internal server error" });

@@ -5,7 +5,8 @@ import { JwtPayload } from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
-const createBlogPost = async (req: Request, res: Response) => {
+const createBlogPost = async (req: AuthenticatedRequest, res: Response) => {
+  const userId = (req.user as JwtPayload).id;
   const { 
     title, 
     excerpt, 
@@ -15,7 +16,6 @@ const createBlogPost = async (req: Request, res: Response) => {
     imageAlt, 
     tags, 
     categoryId, 
-    authorId, 
     isPublished, 
     isFeatured 
   } = req.body;
@@ -31,7 +31,7 @@ const createBlogPost = async (req: Request, res: Response) => {
         imageAlt, 
         tags, 
         categoryId, 
-        authorId, 
+        authorId: userId, 
         isPublished: isPublished || false,
         isFeatured: isFeatured || false,
       },
