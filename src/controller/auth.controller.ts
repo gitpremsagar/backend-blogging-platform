@@ -97,9 +97,9 @@ export const signout = async (req: Request, res: Response) => {
     .status(204)
     .cookie("refreshToken", "", {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production", // Match signin setting
       maxAge: 0,
-      sameSite: "none",
+      sameSite: "lax", // Match signin setting
       path: "/",
     })
     .send();
@@ -108,7 +108,7 @@ export const signout = async (req: Request, res: Response) => {
 
 export const refreshAccessToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
-  console.log("Cookie is\n", req.cookies);
+  // console.log("Cookie is\n", req.cookies);
   if (!refreshToken) {
     console.log("Refresh token is missing");
     return res.status(401).json({ message: "Refresh token is missing" });
@@ -127,14 +127,21 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
+    const userData = {
+      Id: user.id,
+      email: user.email,
+      name: user.name,
+      type: user.type,
+    };
+
     // Generate new access token
     const accessToken = jwt.sign(
-      { Id: user.id, email: user.email, name: user.name, type: user.type },
+      { ...userData },
       process.env.ACCESS_TOKEN_JWT_SECRET!,
       { expiresIn: +process.env.ACCESS_TOKEN_JWT_EXPIRY! } // Remove '+' if using "1h" etc.
     );
 
-    res.send({ accessToken });
+    res.send({ accessToken, user: userData });
   } catch (error: any) {
     if (
       error.name === "TokenExpiredError" ||
