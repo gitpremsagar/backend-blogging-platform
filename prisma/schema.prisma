@@ -51,8 +51,6 @@ model BlogPost {
   author      User         @relation(fields: [authorId], references: [id])
   comments    Comment[]
   category    BlogCategory @relation(fields: [categoryId], references: [id])
-
-  @@map("blog_posts")
 }
 
 model BlogCategory {
