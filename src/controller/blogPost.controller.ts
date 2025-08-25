@@ -27,7 +27,7 @@ const createBlogPost = async (req: AuthenticatedRequest, res: Response) => {
         excerpt, 
         content, 
         readTimeMin, 
-        imageUrl, 
+        imageUrl:"https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop",
         imageAlt, 
         tags, 
         categoryId, 
@@ -64,6 +64,7 @@ const createBlogPost = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 const getAllBlogPosts = async (req: Request, res: Response) => {
+  console.log("requesting all blogs\n", req.query);
   const { 
     published, 
     featured, 
@@ -84,6 +85,7 @@ const getAllBlogPosts = async (req: Request, res: Response) => {
       where.isPublished = published === 'true';
     }
     if (featured !== undefined) {
+      console.log("requesting featured blogs\n", featured);
       where.isFeatured = featured === 'true';
     }
     if (archived !== undefined) {

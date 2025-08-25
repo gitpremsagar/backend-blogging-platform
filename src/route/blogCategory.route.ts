@@ -9,7 +9,7 @@ router.get("/", getAllBlogCategories);
 
 router.get("/:blogCategoryId", getBlogCategoryById);
 
-router.post("/", validateAccessToken, validateBlogCategoryForm, createBlogCategory);
+router.post("/", validateBlogCategoryForm, createBlogCategory);//TODO: Add authentication
 
 router.put("/:blogCategoryId", validateAccessToken, updateBlogCategory);
 
