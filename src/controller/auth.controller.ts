@@ -84,7 +84,7 @@ export const signin = async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
     // maxAge: +process.env.REFRESH_TOKEN_COOKIE_EXPIRY!,
     maxAge: 1000 * 60 * 60 * 24 * 7,
-    sameSite: "lax",
+    sameSite: "none",
     path: "/",
   })
   .cookie("accessToken", accessToken, {
@@ -103,7 +103,7 @@ export const signout = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Match signin setting
       maxAge: 0,
-      sameSite: "lax", // Match signin setting
+      sameSite: "none", // Match signin setting
       path: "/",
     })
     .cookie("accessToken", "", {
