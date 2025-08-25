@@ -9,9 +9,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "postinstall": "prisma generate",
-    "start": "node dist/server.js"
+    "build": "npx prisma generate && npx tsc",
+    "start": "npx prisma generate && node dist/server.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.14.0",
